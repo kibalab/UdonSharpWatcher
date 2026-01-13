@@ -1,0 +1,17 @@
+{
+  "name": "com.kibalab.udonsharpwatcher",
+  "displayName": "com.kibalab.udonsharpwatcher",
+  "version": "0.0.1",
+  "description": "Track UdonSharpBehaviour scripts and automatically create UdonProgramAsset",
+  "gitDependencies": {},
+  "vpmDependencies": {
+    "com.vrchat.worlds": "3.10.1"
+  },
+  "author": {
+    "name": "KIBA",
+    "email": "root@kiba.red",
+    "url": "https://vpm.kiba.red"
+  },
+  "legacyFolders": {},
+  "legacyFiles": {}
+}

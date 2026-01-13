@@ -1,0 +1,27 @@
+{
+    "name": "com.kibalab.udonsharpwatcher.Editor",
+    "rootNamespace": "",
+    "references": [
+        "VRC.SDK3",
+        "VRC.SDK3.Editor",
+        "VRC.SDKBase",
+        "VRC.SDKBase.Editor",
+        "VRC.Udon",
+        "VRC.Udon.Editor",
+        "UdonSharp.Lib",
+        "UdonSharp.Runtime",
+        "UdonSharp.Editor",
+        "com.kibalab.udonsharpwatcher"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
