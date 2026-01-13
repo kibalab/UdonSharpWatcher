@@ -1,7 +1,7 @@
 {
   "name": "com.kibalab.udonsharpwatcher",
   "displayName": "UdonSharp Watcher",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Track UdonSharpBehaviour scripts and automatically create UdonProgramAsset",
   "gitDependencies": {},
   "vpmDependencies": {
