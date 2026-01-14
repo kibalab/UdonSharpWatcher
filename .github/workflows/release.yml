@@ -121,17 +121,3 @@ jobs:
               "thumbnail_url": "${{ steps.thumbnail.outputs.url }}",
               "package_json": ${{ steps.package_json.outputs.content }}
             }'
-
-      # Legacy: Dispatch to vpm-listing (optional, can be removed)
-      - name: Dispatch to vpm-listing (Legacy)
-        if: secrets.VPM_LISTING_DISPATCH_TOKEN != '' && vars.VPM_BACKEND_URL == ''
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.VPM_LISTING_DISPATCH_TOKEN }}
-          repository: kibalab/vpm-listing
-          event-type: package-released
-          client-payload: |
-            {
-              "repo": "${{ github.repository }}",
-              "ref": "${{ github.ref_name }}"
-            }
