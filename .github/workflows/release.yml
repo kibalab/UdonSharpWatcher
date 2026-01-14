@@ -31,7 +31,7 @@ jobs:
     if: needs.config.outputs.config_package == 'true'
     steps:
       - name: Checkout
-        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
+        uses: actions/checkout@v4
 
       - name: Get Version
         id: version
@@ -52,6 +52,7 @@ jobs:
           tag="${{ github.ref_name }}"
           ver="${{ steps.version.outputs.value }}"
           if [ "$tag" != "$ver" ] && [ "$tag" != "v$ver" ]; then
+            echo "Tag '$tag' does not match version '$ver'"
             exit 1
           fi
 
@@ -75,6 +76,12 @@ jobs:
           package-path: ${{ env.unityPackage }}
           include-files: metaList
 
+      - name: Read package.json
+        id: package_json
+        run: |
+          PACKAGE_JSON=$(cat "${{ env.packagePath }}/package.json" | jq -c .)
+          echo "content=$PACKAGE_JSON" >> $GITHUB_OUTPUT
+
       - name: Make Release
         uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844
         with:
@@ -84,21 +91,40 @@ jobs:
             ${{ env.packagePath }}/package.json
           tag_name: ${{ github.ref_name }}
 
-      - name: Dispatch listing rebuild
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.VPM_LISTING_DISPATCH_TOKEN }}
-          repository: kibalab/vpm-listing
-          event-type: package-released
-          client-payload: |
-            {
+      - name: Get Download URL
+        id: download_url
+        run: |
+          echo "url=https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/${{ env.zipFile }}" >> $GITHUB_OUTPUT
+
+      - name: Check for thumbnail
+        id: thumbnail
+        run: |
+          if [ -f ".github/vpm-thumbnail.png" ]; then
+            echo "url=https://raw.githubusercontent.com/${{ github.repository }}/main/.github/vpm-thumbnail.png" >> $GITHUB_OUTPUT
+          elif [ -f "${{ env.packagePath }}/package-media/thumbnail.png" ]; then
+            echo "url=https://raw.githubusercontent.com/${{ github.repository }}/main/${{ env.packagePath }}/package-media/thumbnail.png" >> $GITHUB_OUTPUT
+          else
+            echo "url=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Notify VPM Backend
+        if: vars.VPM_BACKEND_URL != ''
+        run: |
+          curl -X POST "${{ vars.VPM_BACKEND_URL }}/api/webhook/release" \
+            -H "Content-Type: application/json" \
+            -H "X-Api-Key: ${{ secrets.VPM_API_KEY }}" \
+            -d '{
               "repo": "${{ github.repository }}",
               "version": "${{ env.version }}",
               "package_id": "${{ env.package_id }}",
-              "thumbnail_url": "https://raw.githubusercontent.com/${{ github.repository }}/main/.github/vpm-thumbnail.png"
-            }
-            
-      - name: Dispatch listing rebuild
+              "download_url": "${{ steps.download_url.outputs.url }}",
+              "thumbnail_url": "${{ steps.thumbnail.outputs.url }}",
+              "package_json": ${{ steps.package_json.outputs.content }}
+            }'
+
+      # Legacy: Dispatch to vpm-listing (optional, can be removed)
+      - name: Dispatch to vpm-listing (Legacy)
+        if: secrets.VPM_LISTING_DISPATCH_TOKEN != '' && vars.VPM_BACKEND_URL == ''
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.VPM_LISTING_DISPATCH_TOKEN }}
